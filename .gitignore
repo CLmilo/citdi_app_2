@@ -1,0 +1,6 @@
+*.ct*
+Pipfile
+prueba*.py
+compil*
+archivos_rpn
+*.xlsx
