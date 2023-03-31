@@ -1,8 +1,6 @@
 import random
 import time
 import tkinter
-import tempfile
-import requests
 from tkinter import *
 from datetime import datetime
 from matplotlib import style
@@ -21,7 +19,7 @@ import customtkinter as ctk
 from BaselineRemoval import BaselineRemoval
 from obspy.core.trace import Trace
 import xlsxwriter
-
+import webbrowser
 import socket
 
 host = "192.168.0.10"
@@ -40,29 +38,15 @@ extension = ""
 
 ctk.set_appearance_mode("light")  # Modes: system (default), light, dark
 
-ruta_carpeta_temporal = tempfile.gettempdir()
-print("tengo que obtener")
+# print(tema)
+tema = os.environ["PROGRAMFILES"] + "\kallpa_app\citdi_theme.json"
+imagen = os.environ["PROGRAMFILES"] + "\kallpa_app\CITDI_LOGO_SINFONDO.png"
 
-url = "https://download1074.mediafire.com/u6np7w4gvlhgAycjDK9-s70NRgm9Lx6Kmpwf4ocCXtL70tJqt1vvU6f9fCUc3SJeN5-LmrDcJnAKCvTS4XN7C641rgc/wu70298s6im82ft/citdi_theme.json"
-url2 = "https://download1336.mediafire.com/utuv5dk9yitgKEejIkeqUISZc-PBIKssZ5iCREx4DvwPt8p4B4d8RGjxxsogz7wOXwRCVDxYBc3qks99uBg6KP0yP5s/e1penrylki101cr/CITDI_LOGO_SINFONDO.png"
-
-tema = ruta_carpeta_temporal + "\citdi_theme.json"
-imagen = ruta_carpeta_temporal + "\CITDI_LOGO_SINFONDO.png"
-
-response = requests.get(url)
-
-with open(tema, "wb") as f:
-    f.write(response.content)
-
-response = requests.get(url2)
-
-with open(imagen, "wb") as f:
-    f.write(response.content)
-
-print(tema)
-
-ctk.set_default_color_theme(tema)
-
+try:
+    ctk.set_default_color_theme(tema)
+except:
+    print("estás en local")
+    ctk.set_default_color_theme("./citdi_theme.json")
 # Funcionalidades
 
 ruta_data_inicial = ""
@@ -474,7 +458,7 @@ editmenu.add_command(label="Export", command=lambda: Seleccionar_ruta_guardado_p
 helpmenu = Menu(menubar, tearoff=0)
 helpmenu.add_command(label="About", command=lambda:create_toplevel_about())
 helpmenu.add_separator()
-helpmenu.add_command(label="Manual")
+helpmenu.add_command(label="Manual", command=lambda:abrir_manual())
 menubar.add_cascade(label="File", menu=filemenu)
 menubar.add_cascade(label="Menu", menu=editmenu)
 menubar.add_cascade(label="Help", menu=helpmenu)
@@ -525,6 +509,11 @@ def limpiar_entrys():
         print(e, 7)
     tipo_review = "collectwire"
 
+def abrir_manual():
+    ruta_pdf = os.environ["PROGRAMFILES"] + "\kallpa_app\MANUAL DE SOFTWARE.pdf"
+    print(ruta_pdf)
+    url = 'file://' + ruta_pdf
+    webbrowser.open(url)
 
 #Fuentes
 
@@ -550,7 +539,7 @@ ctk.CTkButton(container4c, text=lista_botones[0], font=fontBARRA, command=lambda
 ctk.CTkButton(container4c, text=lista_botones[1], font=fontBARRA, command=lambda:[browseFiles(), Creacion_Grafica("arriba","aceleracion", 1, "original", "NO", "NO"), Creacion_Grafica("abajo", "deformacion", 1, "original", "NO", "NO"), eliminar_columna_muestreo(), raise_frame(Review)]).grid(row=0,column=1, sticky='nsew', pady=10, padx=(0,10))
 ctk.CTkButton(container4c, text=lista_botones[2], font=fontBARRA, command=lambda:create_toplevel_preparar()).grid(row=0,column=2, sticky='nsew', pady=10, padx=(0,10))
 ctk.CTkButton(container4c, text=lista_botones[3], font=fontBARRA, command=lambda:[raise_frame(Collect_Wire), limpiar_entrys()]).grid(row=0,column=3, sticky='nsew', pady=10, padx=(0,10))
-ctk.CTkButton(container4c, text=lista_botones[4], font=fontBARRA, command=lambda:print("manual")).grid(row=0,column=4, sticky='nsew', pady=10, padx=(0,10))
+ctk.CTkButton(container4c, text=lista_botones[4], font=fontBARRA, command=lambda:abrir_manual()).grid(row=0,column=4, sticky='nsew', pady=10, padx=(0,10))
 ctk.CTkButton(container4c, text=lista_botones[5], font=fontBARRA, command=lambda:create_toplevel_about()).grid(row=0,column=5, sticky='nsew', pady=10, padx=(0,10))
 
 # Mostrar Hora
@@ -567,9 +556,14 @@ refrescar_reloj()
 
 # AÑADIR PORTADA
 
-nombre_archivo_portada = imagen
+try:
+    nombre_archivo_portada = imagen
+    imagen = PhotoImage(file=nombre_archivo_portada)
+except:
+    imagen = "./CITDI_LOGO_SINFONDO.png"
+    nombre_archivo_portada = imagen
+    imagen = PhotoImage(file=nombre_archivo_portada)
 
-imagen = PhotoImage(file=nombre_archivo_portada)
 imagen = imagen.zoom(2, 2)
 new_imagen = imagen.subsample(5, 5)
 
