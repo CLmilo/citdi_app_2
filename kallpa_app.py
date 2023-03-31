@@ -38,6 +38,8 @@ extension = ""
 
 ctk.set_appearance_mode("light")  # Modes: system (default), light, dark
 
+
+
 # print(tema)
 tema = os.environ["PROGRAMFILES"] + "\kallpa_app\citdi_theme.json"
 imagen = os.environ["PROGRAMFILES"] + "\kallpa_app\CITDI_LOGO_SINFONDO.png"
@@ -501,9 +503,7 @@ Entry_Profundidad_final = ''
 def limpiar_entrys():
     global Entry_Profundidad_inicial, Entry_Profundidad_final, tipo_review
     try:
-        print("5464")
         Entry_Profundidad_inicial.configure.delete(0, END)
-        print("12876")
         Entry_Profundidad_final.configure.delete(0, END)
     except Exception as e:
         print(e, 7)
@@ -567,7 +567,8 @@ except:
 imagen = imagen.zoom(2, 2)
 new_imagen = imagen.subsample(5, 5)
 
-ctk.CTkLabel(container4b, image=new_imagen, text="").grid(row=0,column=1, columnspan=2, padx=(40), pady=40)
+container_imagen = ctk.CTkLabel(container4b, image=new_imagen, text="")
+container_imagen.grid(row=0,column=1, columnspan=2, padx=(40), pady=40)
 
 ctk.CTkLabel(container4b, font=fontTITULO, text="KALLPA PROCESSOR").grid(row=0, column=0, sticky='nsw', padx=(40,0), pady=20)
 
@@ -2282,9 +2283,9 @@ def Cambiar_Unidades_CollectWire():
     Label_Energia_unidades.configure(text=dic_unidades_collectwire[6][num])
     Label_Energia_valor.configure(text=dic_valores_unidades_collectwire[6][num])         
 
-    """
+    
     #cambiando Entrys
-    valores_anteriores = [str(EntryLE.get()), EntryLR.cget("text"), Entry_Area.cget("text"), Entry_modulo_elasticidad.cget("text"), Entry_masa.cget("text"), Entry_altura.cget("text")]
+    """valores_anteriores = [EntryLE.cget("text"), EntryLR.cget("text"), Entry_Area.cget("text"), Entry_modulo_elasticidad.cget("text"), Entry_masa.cget("text"), Entry_altura.cget("text")]
     EntryLE.delete(0, END)
     EntryLR.delete(0, END)
     Entry_Area.delete(0, END)
@@ -2297,8 +2298,8 @@ def Cambiar_Unidades_CollectWire():
     Entry_Area.insert(0, valores_anteriores[2])
     Entry_modulo_elasticidad.insert(0, valores_anteriores[3])
     Entry_masa.insert(0, valores_anteriores[4])
-    Entry_altura.insert(0, valores_anteriores[5])
-    """ 
+    Entry_altura.insert(0, valores_anteriores[5])"""
+    
 
 
 
@@ -2884,6 +2885,11 @@ def Calcular_Promedios(tipo_archivo):
         Energias_data.append(E)
         Velocidades_data.append(V)
         Desplazamientos_data.append(D)
+
+    Energias.pop()
+    Fuerzas.pop()
+    Velocidades.pop()
+    Energias_teoricas.pop()
     
     #Aquí se añade una fila más a cada variable de arriba Energias, fuerzas, etc, por lo cual se le quita una fila a cada una abajo
     t, t, t, t, t, t, t, t, t, t, t, Fuerzas_impedancia_maxima, Velocidades_impedancia_maxima, segundos, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t = Creacion_Datos_Graficas("fuerzaxvelocidad", 1, "original", "SI")
@@ -2937,7 +2943,7 @@ def Calcular_Promedios(tipo_archivo):
     Fuerzas_impedancia_maxima_grafica = []
     Velocidades_impedancia_maxima_grafica = []
     for i in range(len(segundos)):
-        if segundos[i] > 1.9 and segundos[i] < 50.1: 
+        if segundos[i] < 50.1: 
             segundos_grafica.append(segundos[i])
             Fuerzas_impedancia_maxima_grafica.append(Fuerzas_impedancia_maxima[i])
             Velocidades_impedancia_maxima_grafica.append(Velocidades_impedancia_maxima[i])
