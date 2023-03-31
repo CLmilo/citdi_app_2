@@ -1,6 +1,8 @@
 import random
 import time
 import tkinter
+import tempfile
+import requests
 from tkinter import *
 from datetime import datetime
 from matplotlib import style
@@ -35,13 +37,31 @@ cont = 0
 
 extension = ""
 
-def resolver_ruta(ruta_relativa):
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, ruta_relativa)
-    return os.path.join(os.path.abspath('.'), ruta_relativa)
 
 ctk.set_appearance_mode("light")  # Modes: system (default), light, dark
-ctk.set_default_color_theme(resolver_ruta("citdi_theme.json"))
+
+ruta_carpeta_temporal = tempfile.gettempdir()
+print("tengo que obtener")
+
+url = "https://download1074.mediafire.com/u6np7w4gvlhgAycjDK9-s70NRgm9Lx6Kmpwf4ocCXtL70tJqt1vvU6f9fCUc3SJeN5-LmrDcJnAKCvTS4XN7C641rgc/wu70298s6im82ft/citdi_theme.json"
+url2 = "https://download1336.mediafire.com/utuv5dk9yitgKEejIkeqUISZc-PBIKssZ5iCREx4DvwPt8p4B4d8RGjxxsogz7wOXwRCVDxYBc3qks99uBg6KP0yP5s/e1penrylki101cr/CITDI_LOGO_SINFONDO.png"
+
+tema = ruta_carpeta_temporal + "\citdi_theme.json"
+imagen = ruta_carpeta_temporal + "\CITDI_LOGO_SINFONDO.png"
+
+response = requests.get(url)
+
+with open(tema, "wb") as f:
+    f.write(response.content)
+
+response = requests.get(url2)
+
+with open(imagen, "wb") as f:
+    f.write(response.content)
+
+print(tema)
+
+ctk.set_default_color_theme(tema)
 
 # Funcionalidades
 
@@ -547,7 +567,7 @@ refrescar_reloj()
 
 # AÑADIR PORTADA
 
-nombre_archivo_portada = resolver_ruta("CITDI_LOGO_SINFONDO.png")
+nombre_archivo_portada = imagen
 
 imagen = PhotoImage(file=nombre_archivo_portada)
 imagen = imagen.zoom(2, 2)
@@ -1461,7 +1481,7 @@ def Creacion_Grafica(posicion, magnitud, num, direccion, mantener_relacion_aspec
     dic_magnitud = {'aceleracion':[A3, A4], 'deformacion':[S1, S2], 'fuerza':[F1, F2], 'velocidad':[V1, V2], 'avged':[E, E], 'desplazamiento':[D1, D2], 'fuerzaxvelocidad':[F,V_Transformado], 'wu':[WU, WU], 'wd':[WD, WD]}
     dic_legenda = {'aceleracion':["A3", "A4"], 'deformacion':["S1", "S2"], 'fuerza':["F1", "F2"], 'velocidad':["V1", "V2"], 'avged':["E", "E"], 'desplazamiento':["D1", "D2"], 'fuerzaxvelocidad':["F", str(round(Z, 2))+"*V"], 'wu':['WU', 'WU'], 'wd':['WD', 'WD']}
     dic_unidades = {'aceleracion':[["ms", "g's"], ["ms", "g's"]], 'deformacion':[["ms", "ue"], ["ms", "ue"]], 'fuerza':[["ms", "kN"], ["ms", "kips"]], 'velocidad':[["ms", "m/s"], ["ms", "ft/s"]], 'avged':[["ms", "J"], ["ms", "ft-lbs"]],
-                    'desplazamiento':[["ms", "mm"],["ms", "in"]], 'fuerzaxvelocidad':[["ms", ""], ["ms", ""]], 'wu':[['ms', 'kN'], ['ms', 'kip']], 'wd':[['ms', 'kN'], ['ms', 'kip']]}
+                    'desplazamiento':[["ms", "mm"],["ms", "in"]], 'fuerzaxvelocidad':[["ms", ""], ["ms", ""]], 'wu':[['ms', 'kN'], ['ms', 'kips']], 'wd':[['ms', 'kN'], ['ms', 'kip']]}
 
     texto_label_num_grafica = str(dic_ultima_grafica[posicion])+"/"+str(len(matriz_data_archivos)-1)
     
@@ -1642,26 +1662,37 @@ def sincronizar_grafica_principal(event):
 
     dic_magnitud_sincronizacion = {'aceleracion':[A3, A4], 'deformacion':[S1, S2], 'fuerza':[F1, F2], 'velocidad':[V1, V2], 'avged':[E, E], 'desplazamiento':[D1, D2], 'fuerzaxvelocidad':[F,V_Transformado], 'wu':[WU, WU], 'wd':[WD, WD]}
     dic_legenda = {'aceleracion':["A3", "A4"], 'deformacion':["S1", "S2"], 'fuerza':["F1", "F2"], 'velocidad':["V1", "V2"], 'avged':["E", "E"], 'desplazamiento':["D1", "D2"], 'fuerzaxvelocidad':["F", str(round(Z, 2))+"*V"], 'wu':['WU', 'WU'], 'wd':['WD', 'WD']}
-
+    dic_unidades = {'aceleracion':[["ms", "g's"], ["ms", "g's"]], 'deformacion':[["ms", "ue"], ["ms", "ue"]], 'fuerza':[["ms", "kN"], ["ms", "kips"]], 'velocidad':[["ms", "m/s"], ["ms", "ft/s"]], 'avged':[["ms", "J"], ["ms", "ft-lbs"]],
+                    'desplazamiento':[["ms", "mm"],["ms", "in"]], 'fuerzaxvelocidad':[["ms", ""], ["ms", ""]], 'wu':[['ms', 'kN'], ['ms', 'kips']], 'wd':[['ms', 'kN'], ['ms', 'kip']]}
     #print("estamos en el bucle", ultima_grafica_seleccionada, dic_ultima_grafica_magnitud[dic_inverso[ultima_grafica_seleccionada]], dic_ultima_grafica_magnitud[ultima_grafica_seleccionada])
 
     if ultima_grafica_seleccionada == "arriba":
-        fig2.clear()
-        ax2 = fig2.add_subplot(111)
-        t, = ax2.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][0])
-        t2, = ax2.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][1])
-        ax2.set_xlim(ax1.get_xlim())
-        print(dic_ultima_grafica_magnitud[dic_inverso["arriba"]], dic_ultima_grafica_magnitud[dic_inverso["arriba"]])
-        canvas2.draw()
+        try:
+            fig2.clear()
+            ax2 = fig2.add_subplot(111)
+            t, = ax2.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][0], label=dic_legenda[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][0])
+            t2, = ax2.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][1], label=dic_legenda[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][1] )
+            ax2.set_xlim(ax1.get_xlim())
+            print(dic_ultima_grafica_magnitud[dic_inverso["arriba"]], dic_ultima_grafica_magnitud[dic_inverso["arriba"]])
+            ax2.set_xlabel(dic_unidades[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][dic_metrico[valor_actual_sistema_metrico]][0])
+            ax2.set_ylabel(dic_unidades[dic_ultima_grafica_magnitud[dic_inverso["arriba"]]][dic_metrico[valor_actual_sistema_metrico]][1])
+            canvas2.draw()
+        except Exception as e:
+            print(e, 50)
 
     elif ultima_grafica_seleccionada == "abajo":
-        fig1.clear()
-        ax1 = fig1.add_subplot(111)
-        t, = ax1.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][0])
-        t2, = ax1.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][1])
-        ax1.set_xlim(ax2.get_xlim())
-        print(dic_ultima_grafica_magnitud[dic_inverso["abajo"]], dic_ultima_grafica_magnitud[dic_inverso["abajo"]])
-        canvas1.draw()
+        try:
+            fig1.clear()
+            ax1 = fig1.add_subplot(111)
+            t, = ax1.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][0], label=dic_legenda[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][0])
+            t2, = ax1.plot(segundos, dic_magnitud_sincronizacion[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][1], label=dic_legenda[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][1])
+            ax1.set_xlim(ax2.get_xlim())
+            print(dic_ultima_grafica_magnitud[dic_inverso["abajo"]], dic_ultima_grafica_magnitud[dic_inverso["abajo"]])
+            ax1.set_xlabel(dic_unidades[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][dic_metrico[valor_actual_sistema_metrico]][0])
+            ax1.set_ylabel(dic_unidades[dic_ultima_grafica_magnitud[dic_inverso["abajo"]]][dic_metrico[valor_actual_sistema_metrico]][1])
+            canvas1.draw()
+        except Exception as e:
+            print(e, 51)
     
 
 def eliminar_grafica():
@@ -2812,7 +2843,7 @@ Impedancias = []
 
 def Calcular_Promedios(tipo_archivo):
     global Energias, Fuerzas, Velocidades, Energias_teoricas, orden_sensores, frecuencia_muestreo, pile_area, EM_valor_original, ET_valor_original, matriz_data_archivos, Num_golpes, Num_golpes_modificado, segundo_inicial, segundo_final, fila_resumen
-    global ET_valor_original
+    global ET_valor_original, valor_actual_sistema_metrico
     orden = str(orden_sensores[-1]).replace(" ","").split("|")
 
     if len(orden[4])>1:
@@ -2864,7 +2895,11 @@ def Calcular_Promedios(tipo_archivo):
     t, t, t, t, t, t, t, t, t, t, t, Fuerzas_impedancia_maxima, Velocidades_impedancia_maxima, segundos, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t = Creacion_Datos_Graficas("fuerzaxvelocidad", 1, "original", "SI")
     #print("las energías recién sacadas son las siguientes", Energias, Energias_teoricas)
 
-    datas = [[["", "BL#", "BC", "FMX", "VMX", "BPM", "EFV", "ETR"],[[["", "", "/150mm", "kN", "m/s", "bpm", "J", "%"]], [["", "", "/0.49 ft", "g's", "ft/s", "bpm", "ft-lbf", "%"]]]], [], []]
+    if valor_actual_sistema_metrico == "SI":
+        datas = [[["", "BL#", "BC", "FMX", "VMX", "BPM", "EFV", "ETR"], ["", "", "/150mm", "kN", "m/s", "bpm", "J", "%"]], [], []]
+    elif valor_actual_sistema_metrico == "EN":
+        datas = [[["", "BL#", "BC", "FMX", "VMX", "BPM", "EFV", "ETR"], ["", "", "/5.90in", "kips", "ft/s", "bpm", "ft-lbs", "%"]], [], []]
+
     Num_golpes_modificado2 = []
     Num_golpes_modificado2.append(0)
     acumulado = 0
@@ -3047,7 +3082,7 @@ def crear_pdf(datas, img):
     print(y)
     pdf.line(x1=20, y1=y, x2=185, y2=y)
     dic_sistema_metrico_pdf = {"SI":0, "EN": 1}
-    for row in datas[1][dic_sistema_metrico_pdf[valor_actual_sistema_metrico]]:
+    for row in datas[1]:
         for datum in row:
             pdf.multi_cell(col_width, line_height, datum, border=0,
                     new_x="RIGHT", new_y="TOP", max_line_height=pdf.font_size)
@@ -3068,8 +3103,13 @@ def crear_pdf(datas, img):
     y= pdf.get_y()
     pdf.line(x1=20, y1=y, x2=185, y2=y)
     col_width = pdf.epw / 9
-    cabezera_resumen = [["Instr.", "Blows", "N", "N60", "Average", "Average", "Average", "Average", "Average"], 
-    ["Length", "Applied", "Value", "Value", "FMX", "VMX", "BPM", "EFV", "ETR"], ["m", "/150mm", "", "", "kN", "m/s", "bpm", "J", "%"]]
+    
+    if valor_actual_sistema_metrico == "SI":
+        cabezera_resumen = [["Instr.", "Blows", "N", "N60", "Average", "Average", "Average", "Average", "Average"], 
+        ["Length", "Applied", "Value", "Value", "FMX", "VMX", "BPM", "EFV", "ETR"], ["m", "/150mm", "", "", "kN", "m/s", "bpm", "J", "%"]]
+    elif valor_actual_sistema_metrico == "EN":
+        cabezera_resumen = [["Instr.", "Blows", "N", "N60", "Average", "Average", "Average", "Average", "Average"], 
+        ["Length", "Applied", "Value", "Value", "FMX", "VMX", "BPM", "EFV", "ETR"], ["ft", "/5.90in", "", "", "kips", "ft/s", "bpm", "ft-lbs", "%"]]
 
     for row in cabezera_resumen:
         for datum in row:
