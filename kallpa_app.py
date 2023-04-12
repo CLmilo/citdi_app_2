@@ -685,22 +685,22 @@ def create_toplevel_ayuda_unidades():
     container9_2.grid(row=0, column=1, padx=(0,10), pady=10)
     for i in range(10):
         container9_2.grid_rowconfigure(i, weight=1)
-    ctk.CTkLabel(container9_2, text='Máx. Esfuerzo de compresión medido').grid(row=0, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Desplazamiento máx').grid(row=1, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Energía medida por método FV').grid(row=2, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Relación de energía transferida (o eficiencia)').grid(row=3, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Golpes por minuto').grid(row=4, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Velocidad máxima').grid(row=5, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Fuerza máxima').grid(row=6, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Dezplazamiento al final').grid(row=7, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Max. Deformación').grid(row=8, column=0, padx=5, pady=5)
-    ctk.CTkLabel(container9_2, text='Max. Aceleración').grid(row=9, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum measured compressive stress').grid(row=0, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum displacement').grid(row=1, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Energy measured by Force-Velocity method').grid(row=2, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Transferred energy ratio (efficiency)').grid(row=3, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Blows per minute').grid(row=4, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum Velocity').grid(row=5, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum Force').grid(row=6, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Last measurement of Displacement').grid(row=7, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum Deformation').grid(row=8, column=0, padx=5, pady=5)
+    ctk.CTkLabel(container9_2, text='Maximum Acceleration').grid(row=9, column=0, padx=5, pady=5)
 
 
 boton_ayuda_unidades = ctk.CTkButton(container1_2, width=80, text="?", command=lambda:create_toplevel_ayuda_unidades(), font=fontTEXTcoll).grid(row=0, column=1, padx=5, pady=5)
 
 textos_segundo_frame = ["FMX", "VMX", "EFV", "DMX", "ETR", "CE", "CSX", "DFN", "MEX1", "MEX2", "MEX", "AMX"]
-unidades_segundo_frame = [[" kN"," kip"], [" m/s", " ft/s"], [" J", " ft-lbs"], [" mm", " mm"], [" %", " %"], ["", ""], [" MPa", " ksi"], [" mm", " in"], [" µe", " µe"], [" µe", " µe"], [" µe", " µe"], [" g's", " g's"]]
+unidades_segundo_frame = [[" kN"," kip"], [" m/s", " ft/s"], [" J", " ft-lbs"], [" mm", " in"], [" %", " %"], ["", ""], [" MPa", " ksi"], [" mm", " in"], [" µe", " µe"], [" µe", " µe"], [" µe", " µe"], [" g's", " g's"]]
 unidades_primer_frame = [[" cm²", " in²"], [" MPa", " ksi"], [" J", " ft-lbs"]]
 valores_segundo_frame_arriba = ["", "", "", "", "", "", "", "", "", "", "", ""]
 valores_segundo_frame_abajo = ["", "", "", "", "", "", "", "", "", "", "", ""]
@@ -778,15 +778,20 @@ def modificar_datos_segundo_frame(posicion,texto_label_num_grafica, V_FMX, V_VMX
     global pile_area, pile_area_label, EM_valor_original, EM_label, ET_valor_original, ET_label
     Button_Num_Grafica.configure(text= str(texto_label_num_grafica), font=fontTEXTcoll)
 
-    dic_transformacion_primer_frame = {"SI":[1,1,1], "EN":[0.15500031000062, 0.14503773800722, 0.7375621493]}
-
-    pile_area_value = round(float(pile_area)*dic_transformacion_primer_frame[valor_actual_sistema_metrico][0],2)
-    EM_label_value = round(float(EM_valor_original)*dic_transformacion_primer_frame[valor_actual_sistema_metrico][1],2)
-    ET_label_value = round(float(ET_valor_original)*dic_transformacion_primer_frame[valor_actual_sistema_metrico][2],2)
-
-    valores = [pile_area_value, EM_label_value, ET_label_value, V_FMX, V_VMX, V_EMX, V_DMX, V_ETR, V_CE, V_CSX, V_DFN, V_MEX1, V_MEX2, V_MEX, V_AMX]
-    valores2 = valores.copy()
     
+    AR = round(float(pile_area),2)
+    EM = round(float(EM_valor_original),2)
+    ET = round(float(ET_valor_original),2)
+    if unidad_original != valor_actual_sistema_metrico:
+        dic_transformacion_ar_em_et = {"SI":[1/0.15500031000062,1/0.14503773800722,1/0.7375621493], "EN":[0.15500031000062, 0.14503773800722, 0.7375621493]}
+        AR = round(AR * dic_transformacion_ar_em_et[valor_actual_sistema_metrico][0],2)
+        EM = round(EM * dic_transformacion_ar_em_et[valor_actual_sistema_metrico][1],2)
+        ET = round(ET * dic_transformacion_ar_em_et[valor_actual_sistema_metrico][2],2)
+    
+    valores = [AR, EM, ET, V_FMX, V_VMX, V_EMX, V_DMX, V_ETR, V_CE, V_CSX, V_DFN, V_MEX1, V_MEX2, V_MEX, V_AMX]
+    valores2 = valores.copy()
+    print("------------------------------",valores2)
+
     for index, i in enumerate(valores2):
         
         if index > 1:
@@ -1240,6 +1245,12 @@ def Creacion_Datos_Graficas(magnitud, num, direccion, mantener_limites):
     Z = 0
     EM = float(EM_valor_original)
     AR = float(pile_area)
+    ET = float(ET_valor_original)
+    print("El EM y AR son", EM, AR)
+    if unidad_original != "SI":
+        AR = AR * (1/0.15500031000062)
+        EM = EM * (1/0.14503773800722)
+        ET = ET * (1/0.7375621493)
     factor = EM * AR
     longitud = max(len(S1), len(S2))
     longitud2 = max(len(A3), len(A4))
@@ -1382,7 +1393,6 @@ def Creacion_Datos_Graficas(magnitud, num, direccion, mantener_limites):
     if magnitud == 'avged':
         segundos = segundos_Transformado
     
-    ET = float(ET_valor_original)
     ETR = round(100*(Emax/ET),2)
     CE = round(ETR/60,2) # dividir
     CSX = round(Fmax*10/AR,2)
@@ -1403,8 +1413,8 @@ def Creacion_Datos_Graficas(magnitud, num, direccion, mantener_limites):
         #camiando energía
         E = np.dot(E, valores_de_transformacion[valor_actual_sistema_metrico][3])
         #cambiando desplazamiento
-        D1 = np.dot(D1, valores_de_transformacion[valor_actual_sistema_metrico][0])
-        D2 = np.dot(D2, valores_de_transformacion[valor_actual_sistema_metrico][0])
+        D1 = np.dot(D1, 1000*valores_de_transformacion[valor_actual_sistema_metrico][0])
+        D2 = np.dot(D2, 1000*valores_de_transformacion[valor_actual_sistema_metrico][0])
         #cambiando valores
         ET = ET * valores_de_transformacion[valor_actual_sistema_metrico][3]
         Fmax = round(Fmax * valores_de_transformacion[valor_actual_sistema_metrico][1],2)
@@ -1413,7 +1423,7 @@ def Creacion_Datos_Graficas(magnitud, num, direccion, mantener_limites):
         Dmax = round(Dmax * valores_de_transformacion[valor_actual_sistema_metrico][0],2)
         CSX = round(CSX * valores_de_transformacion[valor_actual_sistema_metrico][4],2)
         DFN = round(DFN * valores_de_transformacion[valor_actual_sistema_metrico][0], 2)
-        
+    
     return A3, A4, S1, S2, F1, F2, V1, V2, E, D1, D2, F, V_Transformado, segundos, ET, ETR, CE, Fmax, Vmax, Emax, Dmax, Z, WU, WD, CSX, DFN, MEX1, MEX2 ,MEX, AMX
 
 def onclick1(event):
@@ -1475,7 +1485,7 @@ def Creacion_Grafica(posicion, magnitud, num, direccion, mantener_relacion_aspec
     A3, A4, S1, S2, F1, F2, V1, V2, E, D1, D2, F, V_Transformado, segundos, ET, ETR, CE, Fmax, Vmax, Emax, Dmax, Z, WU, WD, CSX, DFN, MEX1, MEX2, MEX, AMX = Creacion_Datos_Graficas(magnitud, num, direccion, mantener_limites)
     dic_magnitud = {'aceleracion':[A3, A4], 'deformacion':[S1, S2], 'fuerza':[F1, F2], 'velocidad':[V1, V2], 'avged':[E, E], 'desplazamiento':[D1, D2], 'fuerzaxvelocidad':[F,V_Transformado], 'wu':[WU, WU], 'wd':[WD, WD]}
     dic_legenda = {'aceleracion':["A3", "A4"], 'deformacion':["S1", "S2"], 'fuerza':["F1", "F2"], 'velocidad':["V1", "V2"], 'avged':["E", "E"], 'desplazamiento':["D1", "D2"], 'fuerzaxvelocidad':["F", str(round(Z, 2))+"*V"], 'wu':['WU', 'WU'], 'wd':['WD', 'WD']}
-    dic_unidades = {'aceleracion':[["ms", "g's"], ["ms", "g's"]], 'deformacion':[["ms", "ue"], ["ms", "ue"]], 'fuerza':[["ms", "kN"], ["ms", "kips"]], 'velocidad':[["ms", "m/s"], ["ms", "ft/s"]], 'avged':[["ms", "J"], ["ms", "ft-lbs"]],
+    dic_unidades = {'aceleracion':[["ms", "g's"], ["ms", "g's"]], 'deformacion':[["ms", "uE"], ["ms", "uE"]], 'fuerza':[["ms", "kN"], ["ms", "kips"]], 'velocidad':[["ms", "m/s"], ["ms", "ft/s"]], 'avged':[["ms", "(J)"], ["ms", "ft-lbs"]],
                     'desplazamiento':[["ms", "mm"],["ms", "in"]], 'fuerzaxvelocidad':[["ms", ""], ["ms", ""]], 'wu':[['ms', 'kN'], ['ms', 'kips']], 'wd':[['ms', 'kN'], ['ms', 'kip']]}
 
     texto_label_num_grafica = str(dic_ultima_grafica[posicion])+"/"+str(len(matriz_data_archivos)-1)
@@ -3167,6 +3177,8 @@ def leer_data_cabecera(ruta, identificador):
         filas = file.readlines()
     for index, fila in enumerate(filas):
         fila = fila.replace("\n", "").split(identificador)
+        if index < 15:
+            print(fila)
         if fila[0] == "AR":
             ar_pos = index
         if fila[0] == "EM":
@@ -3178,6 +3190,7 @@ def leer_data_cabecera(ruta, identificador):
         if fila[0] == "Record":
             frecuencia_post = index+3
     
+
     ar = round(float(filas[ar_pos].replace("\n", "").split(identificador)[1]),2)
     em = round(float(filas[em_pos].replace("\n", "").split(identificador)[1]),2)
     efv = float(filas[efv_pos].replace("\n", "").split(identificador)[1])

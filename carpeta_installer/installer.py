@@ -1,4 +1,5 @@
 import os, sys
+import threading
 from tkinter import PhotoImage
 import customtkinter as ctk
 import zipfile
@@ -11,7 +12,7 @@ import subprocess
 
 if not ctypes.windll.shell32.IsUserAnAdmin():
     # Si el usuario no es administrador, solicita permisos elevados y reinicia el programa con permisos de administrador
-    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 0)
 else:
     root = ctk.CTk()
     root.geometry("800x500")
@@ -62,47 +63,56 @@ else:
     container2.grid_columnconfigure(1, weight=1)
     container2.grid_columnconfigure(2, weight=1)
 
-    ctk.CTkButton(container2, text="Next", command=lambda:Descomprimir_Carpeta(), width=80, height=10).grid(row=0, column=1, sticky='nsew', padx=(10, 0), pady=10)
-    ctk.CTkButton(container2, text="Cancel", command=lambda:root.destroy(), width=80, height=10).grid(row=0, column=2, sticky='nsew', padx=10, pady=10)
+    progressbar = ctk.CTkProgressBar(container2)
+    progressbar.grid(row=0, column=0, sticky = 'nsew', padx=40, pady=25)
 
-    def Descomprimir_Carpeta():
+    confirmacion = 1
+
+    ctk.CTkButton(container2, text="Install", command=lambda:Descomprimir_Carpeta(), width=80, height=10).grid(row=0, column=1, sticky='nsew', padx=(10, 0), pady=10)
+    ctk.CTkButton(container2, text="Cancel", command=lambda:[Cancelar(), root.destroy()], width=80, height=10).grid(row=0, column=2, sticky='nsew', padx=10, pady=10)
+
+    ruta_carpeta_temporal = tempfile.gettempdir()
+    ruta_archivo_zip = resolver_ruta("kallpa_app.zip")
+    ruta_program_files = os.environ.get('ProgramFiles', 'C:\\Archivos de programa')
+
+    def Cancelar():
+        global confirmacion
+        confirmacion == 0
+
+    def Instalar():
+        global progressbar, ruta_carpeta_temporal
         ruta_archivo_zip = resolver_ruta("kallpa_app.zip")
-        ruta_carpeta_temporal = tempfile.gettempdir()
         ruta_program_files = os.environ.get('ProgramFiles', 'C:\\Archivos de programa')
+        
+        shutil.rmtree(ruta_program_files+"\kallpa_app")
 
         with zipfile.ZipFile(ruta_archivo_zip, 'r') as archivo_zip:
-            archivo_zip.extractall(ruta_carpeta_temporal)
-        
+                archivo_zip.extractall(ruta_carpeta_temporal)
+        shutil.move(ruta_carpeta_temporal+"\kallpa_app", ruta_program_files)
+        script_file = resolver_ruta("script.exe")
         try:
-            # Intenta mover la carpeta temporal a la carpeta de destino
-            shutil.move(ruta_carpeta_temporal+"\kallpa_app", ruta_program_files)
-            # Ruta completa al archivo del script de PowerShell
-            script_file = resolver_ruta("script.ps1")
-
-            # Llamada a PowerShell para ejecutar el script
-            try:
-                result = subprocess.run(['powershell.exe', '-File', script_file], capture_output=True, text=True)
-                MessageBox.showinfo(title="Conectado", message="the installation has finished successfully")
-            except Exception as e:
-                MessageBox.showinfo(title="Conectado", message="There was a problem" + e)
-
-            
+            if confirmacion == 1:
+                result = subprocess.run(script_file)
+                progressbar.stop()
+                MessageBox.showinfo(title="Alert", message="the installation has finished successfully")
+            else:
+                shutil.rmtree(ruta_program_files+"\kallpa_app")
         except Exception as e:
-            print(e)
+            progressbar.stop()
+            MessageBox.showinfo(title="Alert", message=e)
+
+    def Descomprimir_Carpeta():
+        global progressbar, ruta_carpeta_temporal
+        try:
+            shutil.move(ruta_carpeta_temporal+"\kallpa_app", ruta_program_files)
+            progressbar.start()
+            threading.Thread(target=Instalar).start()
+
+        except:
             respuesta = MessageBox.askyesno(message="Ya existe una instalación anterior, ¿desea eliminarla y sobreescribir?", title="Alerta")
             if respuesta == True:
-                shutil.rmtree(ruta_program_files+"\kallpa_app")
-                shutil.move(ruta_carpeta_temporal+"\kallpa_app", ruta_program_files)
-                script_file = resolver_ruta("script.ps1")
-                try:
-                    result = subprocess.run(['powershell.exe', '-File', script_file], capture_output=True, text=True)
-
-                    MessageBox.showinfo(title="Conectado", message="the installation has finished successfully")
-                except Exception as e:
-                    MessageBox.showinfo(title="Conectado", message="There was a problem" + e)
-            else:
-                pass
-        
+                progressbar.start()
+                threading.Thread(target=Instalar).start()
             
         print(ruta_program_files, ruta_carpeta_temporal, ruta_program_files)
     
